@@ -112,10 +112,13 @@ class WxpayRefundNotifyHelper
 	 */
 	private function _decryptData(string $encryptData, string $md5LowerKey = '')
 	{
+		//1. base64_decode
 		$encryptData_debase64=base64_decode($encryptData);
+		//2. md5 original key
 		if (empty($md5LowerKey)) {
 			$md5LowerKey = strtolower(md5(self::MCH_KEY));
 		}
+		//3. decrypt AES ECB
 		$iv = mcrypt_create_iv(mcrypt_get_iv_size(self::CIPHER, self::MCRYPT_MODE), MCRYPT_RAND);
 		$decrypted = mcrypt_decrypt(self::CIPHER, $md5LowerKey, $encryptData_debase64, self::MCRYPT_MODE, $iv);
 		return $this->xml2array($decrypted);
