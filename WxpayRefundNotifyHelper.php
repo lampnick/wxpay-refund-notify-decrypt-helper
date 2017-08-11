@@ -33,8 +33,8 @@ class WxpayRefundNotifyHelper
 		try {
 			$xml = file_get_contents("php://input");
 			$data = $this->xml2array($xml);
-			$encryptData = base64_decode($data['req_info']);
-			$decryptedData = $this->_decryptAesData($encryptData);
+			$encryptData = $data['req_info'];
+			$decryptedData = $this->_decryptData($encryptData);
 			$msg = 'OK';
 			$result = $this->handelInternal($decryptedData, $msg);
 			$returnArray['return_msg'] = $msg;
@@ -110,13 +110,14 @@ class WxpayRefundNotifyHelper
 	 * @param string $md5LowerKey
 	 * @return array
 	 */
-	private function _decryptAesData(string $encryptData, string $md5LowerKey = '')
+	private function _decryptData(string $encryptData, string $md5LowerKey = '')
 	{
+		$encryptData_debase64=base64_decode($encryptData);
 		if (empty($md5LowerKey)) {
 			$md5LowerKey = strtolower(md5(self::MCH_KEY));
 		}
 		$iv = mcrypt_create_iv(mcrypt_get_iv_size(self::CIPHER, self::MCRYPT_MODE), MCRYPT_RAND);
-		$decrypted = mcrypt_decrypt(self::CIPHER, $md5LowerKey, $encryptData, self::MCRYPT_MODE, $iv);
+		$decrypted = mcrypt_decrypt(self::CIPHER, $md5LowerKey, $encryptData_debase64, self::MCRYPT_MODE, $iv);
 		return $this->xml2array($decrypted);
 	}
 }
