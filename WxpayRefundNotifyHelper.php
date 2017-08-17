@@ -34,7 +34,7 @@ class WxpayRefundNotifyHelper
 			$xml = file_get_contents("php://input");
 			$data = $this->xml2array($xml);
 			$encryptData = $data['req_info'];
-			$decryptedData = $this->_decryptData($encryptData);
+			$decryptedData = $this->xml2array($this->decryptData($encryptData,$this->MCH_KEY));
 			$msg = 'OK';
 			$result = $this->handelInternal($decryptedData, $msg);
 			$returnArray['return_msg'] = $msg;
@@ -110,17 +110,14 @@ class WxpayRefundNotifyHelper
 	 * @param string $md5LowerKey
 	 * @return array
 	 */
-	private function _decryptData(string $encryptData, string $md5LowerKey = '')
+	public function decryptData(string $encryptData, string $Key = '')
 	{
 		//1. base64_decode
-		$encryptData_debase64=base64_decode($encryptData);
+		// openssl_decrypt only accept base64 input param
 		//2. md5 original key
-		if (empty($md5LowerKey)) {
-			$md5LowerKey = strtolower(md5(self::MCH_KEY));
-		}
+		$md5LowerKey = strtolower(md5($Key));
 		//3. decrypt AES ECB
-		$iv = mcrypt_create_iv(mcrypt_get_iv_size(self::CIPHER, self::MCRYPT_MODE), MCRYPT_RAND);
-		$decrypted = mcrypt_decrypt(self::CIPHER, $md5LowerKey, $encryptData_debase64, self::MCRYPT_MODE, $iv);
-		return $this->xml2array($decrypted);
+		$decrypted = openssl_decrypt($encryptData, "AES-256-ECB", $md5LowerKey);
+		return $decrypted;
 	}
 }
