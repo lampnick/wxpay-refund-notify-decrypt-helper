@@ -34,7 +34,7 @@ class WxpayRefundNotifyHelper
 			$xml = file_get_contents("php://input");
 			$data = $this->xml2array($xml);
 			$encryptData = $data['req_info'];
-			$decryptedData = $this->xml2array($this->decryptData($encryptData,$this->MCH_KEY));
+			$decryptedData = $this->xml2array($this->decryptData($encryptData, self::MCH_KEY));
 			$msg = 'OK';
 			$result = $this->handelInternal($decryptedData, $msg);
 			$returnArray['return_msg'] = $msg;
