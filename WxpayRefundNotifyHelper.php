@@ -76,7 +76,7 @@ class WxpayRefundNotifyHelper
 		xml_parser_free($p);
 		$result = [];
 		foreach ($values as $val) {
-			$result[strtolower($val['tag'])] = $val['value'];
+			$result[strtolower($val['tag'])] = isset($val['value']) ? $val['value'] : '';
 		}
 		return $result;
 	}
